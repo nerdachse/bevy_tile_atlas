@@ -3,10 +3,7 @@
 use crate::TextureStore;
 use bevy_asset::Handle;
 use bevy_math::{Rect, Vec2};
-use bevy_render::{
-	render_resource::{Extent3d, TextureDimension, TextureFormat},
-	texture::{Image, TextureFormatPixelInfo},
-};
+use bevy_render::{render_resource::{Extent3d, TextureDimension, TextureFormat}, texture::{Image, TextureFormatPixelInfo}};
 use bevy_sprite::{TextureAtlas, TextureAtlasBuilderError};
 use bevy_utils::HashMap;
 use thiserror::Error;
@@ -302,7 +299,25 @@ impl TileAtlasBuilder {
 		let rect_x = column_index * tile_size.x as usize;
 		let rect_y = row_index * tile_size.y as usize;
 		let atlas_width = atlas_texture.texture_descriptor.size.width as usize;
-		let format_size = atlas_texture.texture_descriptor.format.pixel_size();
+		let format_size;
+		format_size = match texture.texture_descriptor.format {
+			TextureFormat::Bc1RgbaUnorm
+			| TextureFormat::Bc1RgbaUnormSrgb
+			| TextureFormat::Bc2RgbaUnorm
+			| TextureFormat::Bc2RgbaUnormSrgb
+			| TextureFormat::Bc3RgbaUnorm
+			| TextureFormat::Bc3RgbaUnormSrgb
+			| TextureFormat::Bc4RUnorm
+			| TextureFormat::Bc4RSnorm
+			| TextureFormat::Bc5RgUnorm
+			| TextureFormat::Bc5RgSnorm
+			| TextureFormat::Bc6hRgbUfloat
+			| TextureFormat::Bc6hRgbFloat
+			| TextureFormat::Bc7RgbaUnorm
+			| TextureFormat::Bc7RgbaUnormSrgb => 16,
+			| _ => atlas_texture.texture_descriptor.format.pixel_size(),
+		};
+
 
 		for (texture_y, bound_y) in (rect_y..rect_y + rect_height).enumerate() {
 			let begin = (bound_y * atlas_width + rect_x) * format_size;
